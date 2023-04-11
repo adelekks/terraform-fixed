@@ -1,0 +1,32 @@
+---
+- name: Check if Bitbucket Image exists
+  shell: docker image ls
+  register: check
+- debug:
+    var: check.stdout
+
+- name: pull Bitbucket image from Dockerhub
+  shell: "docker pull atlassian/bitbucket-server"
+  when: check.changed
+  register: image_bitbucket
+- debug:
+    var: image_bitbucket
+
+- name: Run Bitbucket container
+  shell: 'sudo docker volume create --name bitbucketVolume && 
+          docker run -v bitbucketVolume:/var/atlassian/application-data/bitbucket \
+          --name="bitbucket" -d -p 7990:7990 -p 7999:7999 --restart unless-stopped atlassian/bitbucket-server &'
+  register: bitbucket_run
+- debug:
+    var: bitbucket_run
+
+- name: sleep for 60 seconds and continue with play
+  wait_for:
+    timeout: 60
+  delegate_to: localhost
+
+#- name: Restart Bitbucket container
+#  shell: "docker start bitbucket"
+#  register: start_bitbucket
+#- debug:
+#    var: start_bitbucket

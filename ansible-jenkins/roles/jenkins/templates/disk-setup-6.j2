@@ -1,0 +1,18 @@
+bootloader --location=mbr --driveorder=sda --append="crashkernel=auto rhgb quiet"
+zerombr yes
+clearpart --all --drives=sda,sdb --initlabel
+part /boot --fstype=ext4 --size=200 --ondisk=sda
+part pv.253000 --grow --size=1
+volgroup rootvg --pesize=4096 pv.253000
+logvol /     --fstype ext4 --vgname=rootvg --name=rootlv --size=4066
+logvol /home --fstype ext4 --vgname=rootvg --name=homelv --size=2048
+logvol /opt  --fstyp  ext4 --vgname=rootvg --name=optlv  --size=1024
+logvol /tmp  --fstype ext4 --vgname=rootvg --name=tmplv  --size=4096
+logvol /usr  --fstype ext4 --vgname=rootvg --name=usrlv  --size=8192
+logvol /usr/users  --fstype ext4 --vgname=rootvg --name=userslv  --size=4096
+logvol /var  --fstype ext4 --vgname=rootvg --name=varlv  --size=4096
+logvol /var/core  --fstype ext4 --vgname=rootvg --name=corelv  --size=2048
+logvol swap  --fstype swap --vgname=rootvg --name=swaplv --size=16384
+part pv.02 --grow --size=200 --ondrive=sdb
+volgroup appvg --pesize=4096 pv.02
+logvol /u02  --fstype ext4 --vgname=appvg --name=u02lv  --size=10240

@@ -1,0 +1,22 @@
+---
+
+- name: create volume, network and container for nexus via shell script
+  shell: |
+    docker network inspect intranet >/dev/null 2>&1 ||     docker network create intranet &&
+    docker run -d -p 8081:8081 -p 8123:8123 -p 8083:8083 --network intranet --name nexus sonatype/nexus3
+  become: yes
+
+- name: sleep for 60 seconds and continue with play
+  wait_for: timeout=60
+  delegate_to: localhost
+
+- name: Get temp password for nexus
+  shell: docker exec nexus  cat /nexus-data/admin.password
+  register: pass
+- debug:
+    var: pass.stdout
+
+- name: Create temp pass file for nexus
+  template:
+    src: nexus-pass.j2
+    dest: ./nexus-pass

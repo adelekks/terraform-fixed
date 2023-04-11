@@ -1,0 +1,38 @@
+---
+#- name: Ensure hostname set
+#  hostname: name={{ inventory_hostname }}
+#  when: not inventory_hostname|match('(\d{1,3}\.){3}\d{1,3}')
+
+- name: upgrade all packages
+  yum:
+    name: '*'
+    state: latest
+
+- name: install the 'Minimal' package group
+  yum: state=latest name={{ item }}
+  with_items:
+  - "@Minimal Install"
+  - bind-utils
+  - kexec-tools
+  - net-tools
+  - perl
+  - vim
+  - wget
+
+- name: Diable SELinux policy
+  selinux: state=disabled
+  ignore_errors: true
+
+- name: ensure SELinux is turned off
+  action: command /usr/sbin/setenforce 0
+  ignore_errors: true
+
+- name: reboot host
+  shell: sleep 10 && /sbin/shutdown -r now
+  async: 60
+  poll: 0
+  become: true
+
+- name: waiting for server booting up
+  pause:
+    seconds: 120

@@ -1,0 +1,10 @@
+---
+
+- name: create volume, network and container for nginx via shell script
+  shell: "docker build -t nginx-img . &&
+          docker run -d -p 443:443 --network intranet --name nginx --restart unless-stopped nginx-img"
+  become: yes
+
+- name: download certificate for nginx in /etc/docker/certs.d/{{ host_ip }} 
+  shell: "sh {{ role_path }}/files/set_certificate.sh {{ host_ip }} {{ domain_name }}"
+  become: yes

@@ -1,0 +1,55 @@
+---
+# tasks file for ansible-role-ssl
+- name: ssl certificate | create certificates directory
+  become: true
+  file:
+    path: "{{ item | dirname }}"
+    state: directory
+  with_items:
+    - "{{ ssl_certificate_public_path }}"
+    - "{{ ssl_certificate_key_path }}"
+
+- name: ssl certificate | genrsa -aes256
+  shell: |
+    cd ./ssl && 
+    openssl genrsa -aes256 -passout pass:"{{ cert_pass }}" -out ca-key.pem 4096 -passin pass:"{{ cert_pass }}"
+
+- name: ssl certificate | generate self-signed SSL certificate
+  shell: |
+    cd ./ssl &&
+    openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem -subj "{{ ssl_certificate_selfsigned_subject }}" -passin pass:"{{ cert_pass }}"
+
+- name: genrsa | SSL public certificate
+  shell: |
+    cd ./ssl &&
+    openssl genrsa -out server-key.pem 4096
+
+- name: ssl certificate | write SSL public certificate
+  shell: |
+    cd ./ssl &&
+    openssl req -subj "/CN={{ domain_name }}" -sha256 -new -key server-key.pem -out server.csr 
+
+- name: ssl Certificate subject
+  shell: |
+    cd ./ssl &&
+    openssl req -subj "/CN={{ domain_name }}" -sha256 -new -key server-key.pem -out server.csr
+
+- name: ssl Certificate subject Alt Name
+  shell: |
+    cd ./ssl &&
+    echo subjectAltName = DNS:"{{ domain_name }}",IP:"{{ host_ip }}",IP:127.0.0.1 > extfile.cnf
+
+- name: ssl certificate | write SSL combined certificate
+  shell: |
+    cd ./ssl &&
+    openssl x509 -req -days 365 -sha256 -in server.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out server-cert.pem -extfile extfile.cnf -passin pass:"{{ cert_pass }}"
+
+- name: Rename SSL certificate to server.crt
+  copy:
+    src: ./ssl/server-cert.pem
+    dest: ./ssl/server.crt
+
+- name: Rename SSL certificate to server.key
+  copy:
+    src: ./ssl/server-key.pem
+    dest: ./ssl/server.key

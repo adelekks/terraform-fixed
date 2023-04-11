@@ -1,0 +1,6 @@
+yum remove NetworkManager -y 
+cd /var/tmp
+wget http://{{ cobbler_public_ip }}/VMwareTools-10.1.7-5541682.tar.gz
+tar -zxf VMwareTools-10.1.7-5541682.tar.gz
+cd vmware-tools-distrib
+./vmware-install.pl -d

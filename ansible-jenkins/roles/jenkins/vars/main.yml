@@ -1,0 +1,6 @@
+---
+####### Repo
+epel_url: 'epel-release'
+jenkins_repo_url: 'http://pkg.jenkins-ci.org/redhat-stable/jenkins.repo'
+jenkins_repo_name: 'jenkins.repo'
+jenkins_repo_gpgkey: 'https://jenkins-ci.org/redhat/jenkins-ci.org.key'

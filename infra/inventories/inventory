@@ -1,0 +1,4 @@
+[infra]
+34.214.176.200
+[infra:vars]
+ansible_ssh_user={{ ansible_user }}

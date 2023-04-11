@@ -1,0 +1,12 @@
+bootloader --location=mbr --driveorder=sda --append="crashkernel=auto rhgb quiet"
+clearpart --all --drives=sda --initlabel
+part /boot --fstype=xfs --size=200 --ondisk=sda
+part pv.253000 --grow --size=1
+volgroup rootvg --pesize=4096 pv.253000
+logvol /     --fstype xfs --vgname=rootvg --name=rootlv --size=512
+logvol /home --fstype xfs --vgname=rootvg --name=homelv --size=512
+logvol /opt  --fstyp  xfs --vgname=rootvg --name=optlv  --size=256
+logvol /tmp  --fstype xfs --vgname=rootvg --name=tmplv  --size=256
+logvol /usr  --fstype xfs --vgname=rootvg --name=usrlv  --size=2048
+logvol /var  --fstype xfs --vgname=rootvg --name=varlv  --size=1024
+logvol swap  --fstype swap --vgname=rootvg --name=swaplv --size=512

@@ -1,0 +1,18 @@
+---
+ansible_user: ec2-user
+domain_name: djkenno.com
+dnsname: "{{ domain_name }}"
+tmppath: ./ssl
+
+# certificate password
+cert_pass: password
+
+# Server path to SSL public certificate
+ssl_certificate_public_path: ./ssl/server-cert.pem
+
+# Server path to SSL certificate key
+ssl_certificate_key_path: ./ssl/server-key.pem
+
+# Certificate subject
+ssl_certificate_selfsigned_subject: |-
+   /C=US/ST=NY/L=NY/O=NA/CN={{ domain_name }}

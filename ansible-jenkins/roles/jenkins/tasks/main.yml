@@ -1,0 +1,53 @@
+---
+- name: Ensure hostname set
+  hostname: name={{ inventory_hostname }}
+  when: not inventory_hostname|match('(\d{1,3}\.){3}\d{1,3}')
+  become: True
+
+- name: Ensure hostname is in /etc/hosts
+  lineinfile:
+    dest=/etc/hosts
+    regexp="^{{ ansible_default_ipv4.address }}.+$"
+    line="{{ ansible_default_ipv4.address }} {{ ansible_fqdn }} {{ ansible_hostname }}"
+  become: True
+
+# Disable SELinux
+- selinux:
+    state: disabled
+  become: True
+
+- name: Install the latest epel repository for CentOS7....
+  action: yum name={{ epel_url }} state=installed
+  become: True
+
+- name: enable the Jenkins repository
+  get_url:
+    url: "{{ jenkins_repo_url }}"
+    dest: "/etc/yum.repos.d/{{ jenkins_repo_name }}"
+  become: True
+
+- name: import a key repository for Jenkins
+  rpm_key:
+    state: present
+    key: "{{ jenkins_repo_gpgkey }}"
+  become: True
+
+- name: Create kubernetes repo file
+  template:
+    src: kubernetes.repo.j2
+    dest: /etc/yum.repos.d/kubernetes.repo
+  become: True
+
+- name: "install the latest stable version of Jenkins "
+  yum: state=present name={{ item }}
+  with_items:
+  - java
+  - jenkins
+  - git
+  - kubectl 
+  - java-1.8.0-openjdk-devel
+  become: True
+
+- name: Start Jenkins service 
+  service: name=jenkins state=started enabled=yes
+  become: True

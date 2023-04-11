@@ -1,0 +1,10 @@
+---
+#!/usr/bin/env ansible-playbook
+# vim:ft=ansible:
+- hosts: localhost
+  connection: local
+  gather_facts: yes
+  serial: 1
+  roles:
+  - ansible-role-docker
+  - jenkins-image

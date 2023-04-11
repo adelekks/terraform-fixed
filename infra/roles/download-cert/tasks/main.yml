@@ -1,0 +1,4 @@
+---
+- name: download certificate for nginx in /etc/docker/certs.d/{{ host_ip }} 
+  shell: "sh {{ role_path }}/files/set_certificate.sh {{ host_ip }} {{ domain_name }}"
+  become: yes
